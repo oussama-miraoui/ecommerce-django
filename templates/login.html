@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block title %} Login {% endblock title %}
+
+{% block content%}
+    <div class="container">
+    <div class="row">
+        <div class="col-lg-6 col-md-8 mx-auto">
+            <div class="card rounded shadow shadow-sm">
+                <div class="card-header text-center">
+                    <h3 class="mb-0">Login</h3>
+                </div>   
+                    {% comment %} DISPLAY SUCCESS MESSAGE {% endcomment %}
+                    {% if messages %}
+                        {% for message in messages %}
+                        <div class="alert alert-danger text-center">{{message}}</a></div>
+                        {% endfor %}
+                    {% endif %}
+                    <span id="error-msg" class="alert alert-danger text-center" style="display:none">Please fill in the fields.</span>
+                <div class="card-body">
+                <form role="form" class="form-horizontal" method="post" >
+                {% csrf_token %}
+                    {% for field in form %}
+                        <label for={{field.id_for_label}}>{{field.html_name|capfirst}}: </label>
+                        <input class="form-control form-control-lg my-3" type="{{ field.widget_type }}" id="{{ field.id_for_label }}" name="{{ field.html_name }}" placeholder="{{field.html_name|capfirst}}" /> 
+                    {% endfor %}
+                    <input type="hidden" name="redirect_to" value="{{ request.GET.redirect_to }}">
+                    <input type="submit" class="btn btn-dark btn-block" value="Login" id="login" name="login">
+                </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let user = document.getElementById('id_username')
+    let password = document.getElementById('id_password')
+    let btn = document.getElementById('login')
+    let error = document.getElementById('error-msg')
+    btn.addEventListener('click',(e)=>{
+        if(user.value=="" || password.value=="" ){
+            e.preventDefault()
+            error.style.display="block"
+        }    
+    }) 
+</script>
+{%endblock content%}

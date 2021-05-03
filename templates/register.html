@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% block title %} Registration {% endblock title %}
+
+{% block content %}
+
+<div class="container">
+    <div class="row">
+        <div class="col-lg-6 col-md-8 mx-auto">
+            <div class="card rounded shadow shadow-sm">
+                <div class="card-header text-center">
+                    <h3 class="mb-0">Register</h3>
+                </div>
+                {% comment %} DISPLAY SUCCESS MESSAGE {% endcomment %}
+                    {% if messages %}
+                        {% for message in messages %}
+                        <div class="alert alert-success text-center">{{message}} <a href={% url 'login' %}>Log in</a></div>
+                        {% endfor %}
+                    {% endif %}
+                <div class="card-body">
+                    <form role="form" class="form-horizontal" method="post">
+                        {% csrf_token %}
+                        {% for field in form %}
+                        <label for={{field.id_for_label}}>{{field.html_name|capfirst}}: </label>
+                            {% if field.widget_type == "textarea" %}
+
+                            <textarea id="{{ field.id_for_label  }}" name="{{ field.html_name }}" rows="2" cols="50" class="form-control form-control-lg my-1">
+
+                            </textarea>
+                            {% else %}
+                            <input class="form-control form-control-lg my-1" type="{{ field.widget_type }}"
+                            id="{{ field.id_for_label  }}" name="{{ field.html_name }}" placeholder="{{field.html_name|capfirst}}" />
+                            {% endif %}
+                        
+                        {% endfor %}
+                        <input type="submit" class="btn btn-dark btn-block" value="Register" name="register">
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}

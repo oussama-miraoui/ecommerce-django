@@ -1,0 +1,116 @@
+{% extends '../base.html' %}
+
+{% block title %} Products {% endblock title %}
+
+{% block content %}
+<main style="height:80vh" class="container">
+  <!--Navbar-->
+  <nav class="navbar navbar-expand-lg navbar-light bg-light mt-3 mb-5">
+
+    <!-- Navbar brand -->
+    <span class="navbar-brand">Categories:</span>
+
+    <!-- Collapse button -->
+    <button class="navbar-toggler text-dark" type="button" data-toggle="collapse" data-target="#categories"
+      aria-controls="basicExampleNav" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="categories">
+
+      <!-- Links -->
+      <ul class="navbar-nav mr-auto">
+        <li class="nav-item">
+          <a class="nav-link" href="/">All</a>
+        </li>
+        {% for categorie in categories %}
+        <li class="nav-item">
+          <a class="nav-link" href="/?categorie={{categorie.nom}}">{{ categorie.nom }}</a>
+        </li>
+        {% endfor %}
+      </ul>
+      <!-- Links -->
+
+      <form class="form-inline" role="search" action="/">
+        <div class="md-form my-0">
+          <input class="form-control mr-sm-2" id="search-input" name="q" type="text" placeholder="Search">
+          <input type="submit" value="Search" id="search-btn" class="btn btn-secondary my-2 my-sm-0">
+        </div>
+      </form>
+    </div>
+    <!-- Collapsible content -->
+
+  </nav>
+  <!--/.Navbar-->
+
+  {% comment %} DISPAY MESSAGE FOR RESULTS {% endcomment %}
+  {% if search %}
+  {% if products|length == 0 %}
+  <h2> No results for: {{search}} </h2>
+  {% elif products|length == 1 %}
+  <h2> {{products|length}} Result for: {{search}} </h2>
+  {% else %}
+  <h2> {{products|length}} Results for: {{search}} </h2>
+  {% endif %}
+  {% endif %}
+  <section class="text-center mb-4">
+
+    <!--Grid row-->
+    <div class="row fadeIn">
+
+      {% for product in products %}
+      <!--Grid column-->
+      <div class="col-lg-4 col-md-6 mb-4">
+
+        <!--Card-->
+        <div class="card bg-light">
+
+          <!--Card image-->
+          <div class="">
+            <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.nom }}">
+          </div>
+          <!--Card image-->
+
+          <!--Card content-->
+          <div class="card-body text-center">
+            <!--Category & Title-->
+            <div class="d-flex justify-content-between">
+              <h5>
+                <span class="dark-grey-text">{{ product.nom }}</span>
+              </h5>
+              <h5 class="font-weight-bold">
+                <strong class="text-success">{{ product.prix }} MAD</strong>
+              </h5>
+              {% if product.ancienPrix %}
+              <h6 class="text-danger">
+                <del>{{ product.ancienPrix }} MAD</del>
+              </h6>
+              {% endif %}
+            </div>
+            <div class="d-flex justify-content-between">
+              <a href="{% url 'product' product.id %}" class="btn btn-light btn-block">View <i
+                  class="fa fa-eye"></i></a>
+            </div>
+          </div>
+          <!--Card content-->
+
+        </div>
+        <!--Card-->
+
+      </div>
+      {% endfor %}
+      <!--Grid column-->
+    </div>
+  </section>
+</main>
+<script>
+  let searchButton = document.getElementById("search-btn")
+  let searchInput = document.getElementById("search-input")
+  searchButton.addEventListener('click', (e) => {
+    if (searchInput.value == "") {
+      e.preventDefault();
+    }
+  })
+</script>
+{% endblock content %}

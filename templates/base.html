@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootswatch@4.5.2/dist/materia/bootstrap.min.css" integrity="sha384-B4morbeopVCSpzeC1c4nyV0d0cqvlSAfyXVfrPJa25im5p+yEN/YmhlgQP/OyMZD" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" integrity="sha512-iBBXm8fW90+nuLcSKlbmrPcLa0OT92xO1BIsZ+ywDWZCvqsWgccV3gFoRBv0z+8dLJgyAHIhR35VZc2oM/gI1w==" crossorigin="anonymous" />
+    <title> {% block title %} Products {% endblock title %} </title>
+    <style>
+        .card:hover {
+            box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+            transition: .3s;
+        }
+    </style>
+</head>
+<body>
+
+<!-- NAVBAR-->
+<nav class="navbar navbar-expand-lg navbar-light bg-light" style="margin-bottom:20px;font-size:15px">
+  <a class="navbar-brand" href="/">E-commerce</a>
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar" aria-controls="navbarColor03" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
+  <div class="collapse navbar-collapse" id="navbar">
+    <ul class="navbar-nav mr-auto">
+
+      <li class="nav-item">
+        <a class="nav-link" href="{% url 'products' %}">Products</a>
+      </li>
+        {% if user.is_authenticated %}
+      <li class="nav-item">
+        <a class="nav-link" href="{% url 'orders' %}">My orders</a>
+      </li>
+        {% endif %}
+      <li class="nav-item">
+        <a class="nav-link" href="{% url 'about' %}">About</a>
+      </li>
+    </ul>
+    <div class=" my-2 my-lg-0">
+        <a href="{% url 'cart' %}" style="" class="text-dark mx-2"> Cart
+            <i class="fas fa-shopping-cart text-dark"></i>
+                <!--<span class="badge bg-danger text-white mr-1" id="count-item-navbar" style="font-size:12px; border-radius:50%">{{ produits | length }}</span>-->
+        </a>
+      {% if request.user.is_authenticated %}
+        <a href="{% url 'logout' %}" class="btn btn-link mr-sm-2 text-danger">Logout</a>
+      {% else %}
+        <a href="{% url 'login' %}" class="btn btn-outline-dark mr-sm-2">Login</a>
+        <a href="{% url 'register' %}" class=" mr-sm-2">Register</a>
+      {% endif %}
+    </div>
+  </div>
+</nav>
+
+    {% block content %}
+    
+    {% endblock   %}
+ 
+<!-- Footer -->
+{% comment %} <footer class="page-footer font-small blue">
+
+  <!-- Copyright -->
+  <div class="footer-copyright text-center py-3">&copy; 2020 Copyright:
+    <a href=""> Ecommerce site</a>
+  </div>
+  <!-- Copyright -->
+
+</footer> {% endcomment %}
+<!-- Footer -->
+<!--<script>
+    let countItemCart = document.getElementById('count-item-cart')
+    let countItemNavbar = document.getElementById('count-item-navbar')
+    sessionStorage.setItem("count", countItemCart.textContent);
+
+    countItemNavbar.innerText=sessionStorage.getItem("count")
+</script> -->
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+</body>
+</html>
