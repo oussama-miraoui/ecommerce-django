@@ -13,7 +13,7 @@
                     {% comment %} DISPLAY SUCCESS MESSAGE {% endcomment %}
                     {% if messages %}
                         {% for message in messages %}
-                        <div class="alert alert-danger text-center">{{message}}</a></div>
+                        <div class="alert {{ message.tags }} text-center">{{ message }}</div>
                         {% endfor %}
                     {% endif %}
                     <span id="error-msg" class="alert alert-danger text-center" style="display:none">Please fill in the fields.</span>

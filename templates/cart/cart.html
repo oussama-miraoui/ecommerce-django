@@ -21,7 +21,6 @@
         {% if paniers|length > 0 %}
         <form action="{% url 'empty-cart' %}" method="post">
             {% csrf_token %}
-            <input type="hidden" name="id-c" value="{{ request.user.client.id }}">
             <button type="submit" class="btn btn-danger btn-sm">
                 Empty cart
             </button>
@@ -77,7 +76,6 @@
                             {% csrf_token %}
                           <div>
                               <input type="hidden" name="id-p" value="{{ panier.produit.id }}">
-                              <input type="hidden" name="id-c" value="{{ request.user.client.id }}">
                             <button  type="submit" class=" btn btn-link text-danger small text-uppercase mr-3">
                                 <i class="fas fa-trash-alt mr-1"></i> Remove item
                             </button>

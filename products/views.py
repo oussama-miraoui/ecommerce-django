@@ -56,17 +56,28 @@ class ProductsView(View):
 # LoginRequiredMixin => l'user n'accède ppas a la page sauf qu'il est authentifié
 
 
+class ProductView(View):
+    def get(self, request, id):
+        product = Produit.objects.get(id=id)
+        # get the product details
+        product_detail = Detail_Produit.objects.all()
+        # get the product details by product ID
+        details = product_detail.filter(produit_id=id)
+
+        return render(request, "products/product.html", {"product": product, "details": details})
+
+
 class AboutView(TemplateView):
     # login_url = '/login/'
     # redirect_field_name = "redirect_to"
     template_name = "about.html"
 
 
-class CartView(LoginRequiredMixin ,View):
+class CartView(LoginRequiredMixin, View):
     login_url = "/login/"
     redirect_field_name = "redirect_to"
+
     def get(self, request):
-        total = 0
         paniers = Panier.objects.all()
         # get all from panier where client_id = Client.id
 
@@ -78,15 +89,8 @@ class OrdersView(TemplateView):
     template_name = "orders.html"
 
 
-class ProductView(View):
-    def get(self, request, id):
-        product = Produit.objects.get(id=id)
-        # get the product details
-        product_detail = Detail_Produit.objects.all()
-        # get the product details by product ID
-        details = product_detail.filter(produit_id=id)
-
-        return render(request, "products/product.html", {"product": product, "details": details})
+class CheckoutView(TemplateView):
+    template_name = "checkout.html"
 
 
 class RegisterView(CreateView):
@@ -101,7 +105,7 @@ class RegisterView(CreateView):
 
         user = User.objects.create_user(username, email, password)
         form.instance.user = user
-        # afficher un message de succes si le client est inscrit
+        # afficher un message de success si le client est inscrit.
         messages.add_message(self.request, messages.INFO,
                              f"You've registered, go to ")
         return super().form_valid(form)
@@ -122,16 +126,17 @@ class LoginView(FormView):
 
         if user is not None:
             login(self.request, user)
+            # store the user id in session
+            self.request.session['user_id'] = self.request.user.client.id
+
             # get the parameter 'redirect_to' from url to redirect the user after login
-            if 'redirect_to' in self.request.POST:
+            if 'redirect_to' in self.request.GET:
                 return redirect(self.request.GET.get('redirect_to'))
-            # print(user.id)
         else:
-            messages.add_message(self.request, messages.ERROR,
-                                 "Username or password invalid.")
+            messages.error(self.request, "Username or password invalid.")
             return render(self.request, self.template_name, {"form": self.form_class})
 
-        return super().form_valid(form)
+        return redirect('products')
 
 
 class LogoutView(View):
@@ -140,6 +145,8 @@ class LogoutView(View):
         return redirect('products')
 
 # CART operations
+
+
 def addToCart(request):
     if request.method == 'POST':
         # get the query string from url parameter
@@ -147,14 +154,13 @@ def addToCart(request):
         couleur = request.POST.get('color')
         quantite = request.POST.get('quantity')
         id_produit = request.POST.get('id-p')
-        id_client = request.POST.get('id-c')
         total = request.POST.get('total')
-        if taille or couleur or quantite or id_produit or id_client or total:
+        if taille or couleur or quantite or id_produit or total:
             # check if the client already added the same product to the cart
-            if Panier.objects.filter(produit_id=id_produit, client_id=id_client).exists():
+            if Panier.objects.filter(produit_id=id_produit, client_id=request.session['user_id']).exists():
                 messages.error(request, "Item already exist!")
             else:
-                panier = Panier(client_id=id_client,
+                panier = Panier(client_id=request.session['user_id'],
                                 produit_id=id_produit,
                                 couleur=couleur,
                                 taille=taille,
@@ -173,20 +179,15 @@ def addToCart(request):
 def removeFromCart(request):
     if request.method == "POST":
         id_produit = request.POST.get('id-p')
-        id_client = request.POST.get('id-c')
 
-        if id_produit and id_client:
-            panier = Panier.objects.filter(produit_id=id_produit, client_id=id_client)
+        if id_produit and request.session['user_id']:
+            panier = Panier.objects.filter(produit_id=id_produit, client_id=request.session['user_id'])
             panier.delete()
             messages.success(request, "Item deleted!")
-            return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
-        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+            return redirect("cart")
+
 
 def emptyCart(request):
-    if request.method == 'POST':
-        id_client = request.POST.get('id-c')
-        if id_client:
-            panier = Panier.objects.filter(client_id=id_client)
-            panier.delete()
-            return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
-        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+    panier = Panier.objects.filter(client_id=request.session['user_id'])
+    panier.delete()
+    return redirect("cart")

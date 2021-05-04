@@ -9,7 +9,10 @@
     <div class="col-md-6 mx-auto">
     {% if messages %}
       {% for message in messages %}
-        <div class="alert {{message.tags}} alert-dismissible text-center">{{message}}</div>
+        <div class="alert {{message.tags}} alert-dismissible text-center">
+            <button type="button" class="close" data-dismiss="alert">&times;</button>
+            {{message}}
+        </div>
       {% endfor %}
     {% endif %}
     </div>
@@ -45,10 +48,8 @@
           <p class="font-weight-bold">Description:</p>
           <p>{{ product.description }}</p>
           <form class="" method="post" action="{% url 'add-to-cart' %}">
-
             {% csrf_token %}
               <input type="hidden" value="{{ product.id }}" name="id-p">
-              <input type="hidden" value="{{ request.user.client.id }}" name="id-c">
               <input type="hidden" name="total" value="{{ product.prix }}">
             {% if details %}
             <div class="form-group">
@@ -97,7 +98,7 @@
 
     <hr>
 
-    <a href={% url 'products' %} class="btn btn-secondary float-right"><i class="fa fa-back"></i>Back</a>
+    <a href="{% url 'products' %}" class="btn btn-secondary float-right"><i class="fa fa-back"></i>Back</a>
 
   </div>
 </main>
