@@ -5,98 +5,113 @@
 {% block content %}
 
 <!--Section: Block Content-->
-<section class="container">
-    <div class="col-md-6 mx-auto">
-        {% if messages %}
-            {% for message in messages %}
-                <div class="alert {{message.tags}} alert-dismissible text-center">
-                    <button type="button" class="close" data-dismiss="alert">&times;</button>
-                    {{message}}
-                </div>
-            {% endfor %}
-        {% endif %}
+<section class="container bg-light p-5">
+  <div class="col-md-6 mx-auto">
+    {% if messages %}
+    {% for message in messages %}
+    <div class="alert {{message.tags}} alert-dismissible text-center">
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+      {{message}}
     </div>
-    <div class="d-flex justify-content-between">
-        <h5 class="mb-4">Cart (<span id="count-item-cart">{{ paniers | length }}</span> items)</h5>
-        {% if paniers|length > 0 %}
-        <form action="{% url 'empty-cart' %}" method="post">
-            {% csrf_token %}
-            <button type="submit" class="btn btn-danger btn-sm">
-                Empty cart
-            </button>
-        </form>
-        {% endif %}
-    </div>
+    {% endfor %}
+    {% endif %}
+  </div>
+  <div class="d-flex justify-content-between">
+    <h5 class="mb-4">Cart (<span id="count-item-cart">
+        {{ paniers|length }}</span> {% if paniers|length == 1 or paniers|length == 0 %} item {%else%} items {%endif%})
+    </h5>
+    {% if paniers|length > 0 %}
+    <form action="{% url 'empty-cart' %}" method="post">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-danger btn-sm">
+        Empty cart
+      </button>
+    </form>
+    {% endif %}
+  </div>
 
-{% if paniers %}
-      <!--Grid row-->
-      <div class="row">
+  {% if paniers %}
+  <!--Grid row-->
+  <div class="row">
     {% for panier in paniers %}
-        <!--Grid column-->
-        <div class="col-lg-8">
+    <!--Grid column-->
+    <div class="col-lg-8">
 
-          <!-- Card -->
-          <div class="">
-            <div class="">
+      <!-- Card -->
+      <div class="">
+        <div class="">
 
 
-              <hr class="mb-4">
-              <div class="row ">
-                <div class="col-md-5 col-lg-3 col-xl-3">
+          <hr class="mb-4">
+          <div class="row ">
+            <div class="col-md-5 col-lg-3 col-xl-3">
 
-                  <div class="view zoom overlay z-depth-1 rounded mb-3 mb-md-0">
-                    <img class="img-fluid w-100"
-                      src="{{ panier.produit.image.url }}" alt="{{ panier.produit.nom }}">
-                  </div>
-                </div>
-                <div class="col-md-7 col-lg-9 col-xl-9">
+              <div class="view zoom overlay z-depth-1 rounded mb-3 mb-md-0">
+                <img class="img-fluid w-100" src="{{ panier.produit.image.url }}" alt="{{ panier.produit.nom }}">
+              </div>
+            </div>
+            <div class="col-md-7 col-lg-9 col-xl-9">
+              <div>
+                <div class="d-flex justify-content-between">
                   <div>
-                    <div class="d-flex justify-content-between">
-                      <div>
-                        <h5>{{ panier.produit.nom }} </h5>
-                        <p class="mb-3 text-muted text-uppercase small">{{ panier.produit.categorie.nom }}</p>
-                          {% if panier.couleur %}
-                        <p class="mb-2 text-muted text-uppercase small">Color: {{ panier.couleur }}</p>
-                          {% endif %}
-                          {% if panier.taille %}
-                        <p class="mb-3 text-muted text-uppercase small">Size: {{ panier.taille }}</p>
-                          {% endif %}
-                         <p class="mb-3 text-muted text-uppercase small">Price: {{ panier.produit.prix }} MAD</p>
-                          <input type="hidden" name="" class="price" value="{{ panier.produit.prix }}">
-                      </div>
-                      <div>
-                        <div class="mb-0 w-100">
-                            Quantity:
-                            <input class="quantity form-control" onchange="subTotal()" min="1" name="quantity" value="{{panier.quantity}}" type="number">
-                        </div>
-                      </div>
-                    </div>
-                    <div class="d-flex justify-content-between align-items-center">
-                        <form action="{% url 'remove-from-cart' %}" method="post">
-                            {% csrf_token %}
-                          <div>
-                              <input type="hidden" name="id-p" value="{{ panier.produit.id }}">
-                            <button  type="submit" class=" btn btn-link text-danger small text-uppercase mr-3">
-                                <i class="fas fa-trash-alt mr-1"></i> Remove item
-                            </button>
-                          </div>
+                    <h5>{{ panier.produit.nom }} </h5>
+                    <p class="mb-3 text-muted text-uppercase small">{{ panier.produit.categorie.nom }}</p>
+                    {% if panier.couleur %}
+                    <p class="mb-2 text-muted text-uppercase small">Color: {{ panier.couleur }}</p>
+                    {% endif %}
+                    {% if panier.taille %}
+                    <p class="mb-3 text-muted text-uppercase small">Size: {{ panier.taille }}</p>
+                    {% endif %}
+                    <p class="mb-3 text-muted text-uppercase small">Price: {{ panier.produit.prix }} MAD</p>
+                    <input type="hidden" name="" class="price" value="{{ panier.produit.prix }}">
+                  </div>
+                  <div>
+                    <div class="mb-0 w-100">
+                      Quantity:
+                      <div class="d-flex mt-3">
+                        <form action="{% url 'remove-item-from-cart' %}" method="post">
+                          {% csrf_token %}
+                          <button type="submit" class="btn btn-light"><i class="fa fa-minus"></i></button>
+                          <input type="hidden" name="id-p" value="{{panier.produit.id}}">
                         </form>
-                      <p class="mb-0 font-weight-bold"><span class="subtotal">0</span></p>
+                        <!-- onchange="subTotal()"  -->
+                        <input class="quantity form-control text-center" style="width:50%" min="1" name="quantity"
+                          value="{{panier.quantity}}" type="number">
+                        <form action="{% url 'add-to-cart' %}" method="post">
+                          {% csrf_token %}
+                          <button type="submit" class="btn btn-light"><i class="fa fa-plus"></i></button>
+                          <input type="hidden" name="id-p" value="{{panier.produit.id}}">
+                        </form>
+                      </div>
                     </div>
-
                   </div>
                 </div>
+                <div class="d-flex justify-content-between align-items-center">
+                  <form action="{% url 'remove-from-cart' %}" method="post">
+                    {% csrf_token %}
+                    <div>
+                      <input type="hidden" name="id-p" value="{{ panier.produit.id }}">
+                      <button type="submit" class=" btn btn-link text-danger small text-uppercase mr-3">
+                        <i class="fas fa-trash-alt mr-1"></i> Remove item
+                      </button>
+                    </div>
+                  </form>
+                  <p class="mb-0 font-weight-bold"><span class="subtotal">{{ panier.subTotal }}</span> MAD</p>
+                </div>
+
               </div>
             </div>
           </div>
-          <!-- Card -->
         </div>
-        <!--Grid column-->
+      </div>
+      <!-- Card -->
+    </div>
+    <!--Grid column-->
 
-{% endfor %}
+    {% endfor %}
 
-            <!-- Card -->
-     <div class="col-lg-4">
+    <!-- Card -->
+    <div class="col-lg-4">
       <div class="mb-3">
         <div class="pt-4">
 
@@ -104,40 +119,38 @@
 
           <ul class="list-group list-group-flush">
             <li class="list-group-item d-flex justify-content-between align-items-center border-0 px-0 pb-0">
-              Total: <span id="total" class="total font-weight-bold"></span>
+              Total: <span id="total" class="total font-weight-bold">0</span>
             </li>
           </ul>
-
-          <button type="button" class="btn btn-dark btn-block my-5">Checkout</button>
+          <div class="d-flex justify-content-between my-3">
+            <a href="{% url 'products'%}" class="btn btn-light float-right">Continue shopping</a>
+            <a href="{% url 'checkout' %}" type="button" class="btn btn-dark">Checkout</a>
+          </div>
 
         </div>
       </div>
-      </div>
-       <!-- Card -->
-      </div>
+    </div>
+    <!-- Card -->
+  </div>
   <!-- Grid row -->
-    {% else %}
-    <div class="h2"> Your cart is empty, add some <a href={% url 'products' %}>products.</a></div>
-{% endif %}
+  {% else %}
+  <div class="h2"> Your cart is empty, add some <a href={% url 'products' %}>products.</a></div>
+  {% endif %}
 </section>
 <!--Section: Block Content-->
 <script type="text/javascript">
 
-let quantity = document.getElementsByClassName('quantity')
-let price = document.getElementsByClassName('price')
-let subtotal = document.getElementsByClassName('subtotal')
-let total = document.getElementById('total')
-let tot = 0
-function subTotal(){
-    tot=0
-    for (let i=0; i<price.length;i++){
-        subtotal[i].innerText = (price[i].value)*(quantity[i].value) + " MAD"
-        tot+= (price[i].value)*(quantity[i].value)
+  let subtotal = document.getElementsByClassName('subtotal')
+  let total = document.getElementById('total')
+  let tot = 0
+  function Total() {
+    tot = 0
+    for (let i = 0; i < subtotal.length; i++) {
+      tot += Number(subtotal[i].innerText)
     }
     total.innerText = tot + " MAD";
-}
-subTotal()
+  }
+  Total()
 
 </script>
 {% endblock content %}
-

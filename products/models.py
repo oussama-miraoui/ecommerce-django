@@ -56,6 +56,7 @@ class Detail_Produit(models.Model):
     taille = models.ForeignKey(
         Taille, on_delete=models.CASCADE, blank=True, null=True)
 
+
 class Panier(models.Model):
     client = models.ForeignKey(Client, on_delete=models.CASCADE)
     produit = models.ForeignKey(Produit, on_delete=models.CASCADE)
@@ -64,3 +65,6 @@ class Panier(models.Model):
     quantity = models.PositiveIntegerField(default=1)
     subtotal = models.PositiveIntegerField()
     total = models.PositiveIntegerField()
+
+    def subTotal(self):
+        return self.quantity * self.produit.prix

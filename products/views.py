@@ -6,7 +6,8 @@ from django.urls import reverse_lazy
 from django.contrib.auth.models import User
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
-from .forms import ClientRegistrationForm, ClientLoginForm
+from django.contrib.auth.decorators import login_required
+from .forms import ClientRegistrationForm, ClientLoginForm, CheckoutForm
 from django.contrib.auth.mixins import LoginRequiredMixin
 from .models import Produit, Categorie, Detail_Produit, Panier
 
@@ -80,8 +81,7 @@ class CartView(LoginRequiredMixin, View):
     def get(self, request):
         paniers = Panier.objects.all()
         # get all from panier where client_id = Client.id
-
-        client_panier = paniers.filter(client_id=request.user.client.id)
+        client_panier = paniers.filter(client_id=request.session['user_id'])
         return render(request, "cart/cart.html", {"paniers": client_panier})
 
 
@@ -89,8 +89,21 @@ class OrdersView(TemplateView):
     template_name = "orders.html"
 
 
-class CheckoutView(TemplateView):
-    template_name = "checkout.html"
+class CheckoutView(View):
+    def get(self, request):
+        # initial => set default values for form fields
+        form = CheckoutForm(initial={
+            'fullname': request.user.client.fullname,
+            'username': request.user.username,
+            'email': request.user.email,
+            'phone': request.user.client.phone,
+            'email': request.user.email,
+            'city': request.user.client.city
+        })
+        paniers = Panier.objects.filter(client_id=request.session['user_id'])
+        return render(request, "checkout.html", {'form': form, "paniers": paniers})
+
+    # def post(self, *args, **kwargs):
 
 
 class RegisterView(CreateView):
@@ -108,6 +121,7 @@ class RegisterView(CreateView):
         # afficher un message de success si le client est inscrit.
         messages.add_message(self.request, messages.INFO,
                              f"You've registered, go to ")
+
         return super().form_valid(form)
 
 
@@ -147,6 +161,7 @@ class LogoutView(View):
 # CART operations
 
 
+@login_required(login_url='/login/')
 def addToCart(request):
     if request.method == 'POST':
         # get the query string from url parameter
@@ -156,9 +171,15 @@ def addToCart(request):
         id_produit = request.POST.get('id-p')
         total = request.POST.get('total')
         if taille or couleur or quantite or id_produit or total:
-            # check if the client already added the same product to the cart
+            # check if the client already added the same product to the cart and update its quantity
             if Panier.objects.filter(produit_id=id_produit, client_id=request.session['user_id']).exists():
-                messages.error(request, "Item already exist!")
+                messages.success(
+                    request, "Quantity updated!")
+                item = get_object_or_404(Panier,
+                                         produit_id=id_produit, client_id=request.session['user_id'])
+                item.quantity += 1
+                item.save()
+                return redirect('cart')
             else:
                 panier = Panier(client_id=request.session['user_id'],
                                 produit_id=id_produit,
@@ -170,10 +191,10 @@ def addToCart(request):
 
                 panier.save()
                 messages.success(request, "Item added!")
-        #Redirect to the same page
-        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+        # Redirect to the same page
+        return redirect('cart')
 
-    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+    return redirect('cart')
 
 
 def removeFromCart(request):
@@ -181,9 +202,26 @@ def removeFromCart(request):
         id_produit = request.POST.get('id-p')
 
         if id_produit and request.session['user_id']:
-            panier = Panier.objects.filter(produit_id=id_produit, client_id=request.session['user_id'])
+            panier = Panier.objects.filter(
+                produit_id=id_produit, client_id=request.session['user_id'])
             panier.delete()
             messages.success(request, "Item deleted!")
+            return redirect("cart")
+
+
+def removeItemFromCart(request):
+    if request.method == 'POST':
+        id_produit = request.POST.get('id-p')
+
+        if id_produit and request.session['user_id']:
+            item = get_object_or_404(
+                Panier, produit_id=id_produit, client_id=request.session['user_id'])
+            if item.quantity > 1:
+                item.quantity -= 1
+                item.save()
+                messages.success(request, "Quantity updated!")
+            else:
+                removeFromCart(request)
             return redirect("cart")
 
 
