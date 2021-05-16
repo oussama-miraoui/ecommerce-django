@@ -8,15 +8,16 @@
         <div class="col-lg-6 col-md-8 mx-auto">
             <div class="card rounded shadow shadow-sm">
                 <div class="card-header text-center">
-                    <h3 class="mb-0">Login</h3>
-                </div>   
-                    {% comment %} DISPLAY SUCCESS MESSAGE {% endcomment %}
+                    <h3 class="mb-">Login</h3>
+                    {# DISPLAY SUCCESS MESSAGE #}
                     {% if messages %}
                         {% for message in messages %}
                         <div class="alert {{ message.tags }} text-center">{{ message }}</div>
                         {% endfor %}
                     {% endif %}
                     <span id="error-msg" class="alert alert-danger text-center" style="display:none">Please fill in the fields.</span>
+                </div>   
+
                 <div class="card-body">
                 <form role="form" class="form-horizontal" method="post" >
                 {% csrf_token %}

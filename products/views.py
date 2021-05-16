@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect
+from django.conf import settings
 from django.http import HttpResponse, HttpResponseRedirect
 from django.views.generic import View, TemplateView, CreateView, FormView
 from django.shortcuts import get_object_or_404
@@ -7,11 +8,16 @@ from django.contrib.auth.models import User
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
+from stripe.api_resources.order import Order
 from .forms import ClientRegistrationForm, ClientLoginForm, CheckoutForm
 from django.contrib.auth.mixins import LoginRequiredMixin
-from .models import Produit, Categorie, Detail_Produit, Panier
+from .models import Produit, Categorie, Detail_Produit, Panier, Paiement, Commande
+import stripe
 
-# Create your views here.
+# Set your secret key. Remember to switch to your live secret key in production.
+# See your keys here: https://dashboard.stripe.com/apikeys
+
+stripe.api_key = settings.STRIPE_SECRET_KEY
 
 
 class ProductsView(View):
@@ -54,7 +60,7 @@ class ProductsView(View):
             context
         )
 
-# LoginRequiredMixin => l'user n'accède ppas a la page sauf qu'il est authentifié
+# LoginRequiredMixin => l'user n'accède pas a la page sauf qu'il est authentifié
 
 
 class ProductView(View):
@@ -68,12 +74,6 @@ class ProductView(View):
         return render(request, "products/product.html", {"product": product, "details": details})
 
 
-class AboutView(TemplateView):
-    # login_url = '/login/'
-    # redirect_field_name = "redirect_to"
-    template_name = "about.html"
-
-
 class CartView(LoginRequiredMixin, View):
     login_url = "/login/"
     redirect_field_name = "redirect_to"
@@ -85,11 +85,18 @@ class CartView(LoginRequiredMixin, View):
         return render(request, "cart/cart.html", {"paniers": client_panier})
 
 
-class OrdersView(TemplateView):
-    template_name = "orders.html"
+class OrdersView(View):
+    def get(self, request):
+        orders = Commande.objects.all()
+        # get all from panier where client_id = Client.id
+        client_order = orders.filter(client_id=request.session['user_id'])
+        return render(request, "orders.html", {"orders": client_order})
 
 
-class CheckoutView(View):
+class CheckoutView(LoginRequiredMixin, View):
+    login_url = "/login/"
+    redirect_field_name = "redirect_to"
+
     def get(self, request):
         # initial => set default values for form fields
         form = CheckoutForm(initial={
@@ -100,10 +107,52 @@ class CheckoutView(View):
             'email': request.user.email,
             'city': request.user.client.city
         })
+
         paniers = Panier.objects.filter(client_id=request.session['user_id'])
         return render(request, "checkout.html", {'form': form, "paniers": paniers})
 
-    # def post(self, *args, **kwargs):
+    def post(self, *args, **kwargs):
+        paniers = Panier.objects.filter(
+            client_id=self.request.session['user_id'])
+        total = 0
+        listProduits = []
+        produits = ""
+        for panier in paniers:
+            total += panier.subTotal()
+            listProduits.append(panier.produit.nom)
+
+        produits = ", ".join(listProduits)
+
+        token = self.request.POST.get('stripeToken')
+        # print(token)
+
+        charge = stripe.Charge.create(
+            amount=total * 50,
+            currency="MAD",
+            source=token
+        )
+
+        # create payment
+        paiement = Paiement()
+        paiement.stripe_charge_id = charge['id']
+        paiement.client = self.request.user.client
+        paiement.montant = total
+        paiement.save()
+
+        # create order
+        commande = Commande()
+        commande.client = self.request.user.client
+        commande.methode_paiment = "Stripe"
+        commande.paiement = paiement
+        commande.produits = produits
+        commande.save()
+
+        # empty the cart
+        paniers.delete()
+
+        messages.success(
+            self.request, f"Your order was submitted! check your ")
+        return redirect('checkout')
 
 
 class RegisterView(CreateView):
@@ -119,8 +168,7 @@ class RegisterView(CreateView):
         user = User.objects.create_user(username, email, password)
         form.instance.user = user
         # afficher un message de success si le client est inscrit.
-        messages.add_message(self.request, messages.INFO,
-                             f"You've registered, go to ")
+        messages.info(self.request, "You've registered, go to ")
 
         return super().form_valid(form)
 
@@ -158,8 +206,8 @@ class LogoutView(View):
         logout(request)
         return redirect('products')
 
-# CART operations
 
+# CART operations
 
 @login_required(login_url='/login/')
 def addToCart(request):

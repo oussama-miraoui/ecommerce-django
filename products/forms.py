@@ -19,7 +19,7 @@ class ClientRegistrationForm(forms.ModelForm):
         username = self.cleaned_data['username']
         if User.objects.exclude(pk=self.instance.pk).filter(username=username).exists():
             raise forms.ValidationError(
-                u'Username "%s" is already in use.' % username)
+                f'Username {username} is already in use.')
         return username
 
 

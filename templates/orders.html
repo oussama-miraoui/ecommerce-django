@@ -3,5 +3,34 @@
 {% block title %} Orders {% endblock title %}
 
 {% block content %}
+<div class="container">
+    {% if orders %}
+    <h1>Your orders</h1>
+    <table class="table table-hover table-light table-bordered" style="font-size: 15px">
+    <thead>
+        <tr>
+        <th scope="col">Ordered products</th>
+        <th scope="col">Order date</th>
+        <th scope="col">Payment method</th>
+        <th scope="col">Address</th>
+        <th scope="col">Amount</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for order in orders %}
+        <tr class="">
+            <td>{{order.produits}}</td>
+            <td>{{ order.date_commande }}</td>
+            <td>{{ order.methode_paiment }}</td>
+            <td>{{ request.user.client.adress }}</td>
+            <td>{{ order.paiement.montant }} MAD</td>
+        </tr>
+    {% endfor %}
+    </tbody>
+    </table>
+    {%else %}
     <h1>You have no orders yet.</h1>
+    {% endif %}
+</div>
+
 {% endblock content%}

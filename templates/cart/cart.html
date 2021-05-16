@@ -137,20 +137,24 @@
   <div class="h2"> Your cart is empty, add some <a href={% url 'products' %}>products.</a></div>
   {% endif %}
 </section>
-<!--Section: Block Content-->
-<script type="text/javascript">
-
-  let subtotal = document.getElementsByClassName('subtotal')
-  let total = document.getElementById('total')
-  let tot = 0
-  function Total() {
-    tot = 0
-    for (let i = 0; i < subtotal.length; i++) {
-      tot += Number(subtotal[i].innerText)
+  <script type="text/javascript">
+    let subtotal = document.getElementsByClassName('subtotal')
+    let total = document.getElementById('total')
+    let tot = 0
+    function Total() {
+        tot = 0
+        for (let i = 0; i < subtotal.length; i++) {
+            tot += Number(subtotal[i].innerText)
+        }
+        total.innerText = tot + " MAD";
     }
-    total.innerText = tot + " MAD";
-  }
-  Total()
+    Total()
 
-</script>
+  </script>
+
+    {% comment %} {% block javascript %}
+    {% load static %}
+        <script src="{% static 'js/total.js' %}" type="text/javascript"></script>
+    {% endblock javascript %} {% endcomment %}
+
 {% endblock content %}

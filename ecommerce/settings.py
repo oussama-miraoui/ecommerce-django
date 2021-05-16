@@ -22,6 +22,10 @@ MESSAGE_TAGS = {
 }
 
 
+STRIPE_PUBLIC_KEY = 'pk_test_51I1fcFLxHi43cm8RsHnjwWqFTr1PjwtWFiK63XxFXWU3PBTbX90ZOusvmOeqtepyyflwpgDWzeqMO60FwgZ0axBc00KAUYIKYM'
+STRIPE_SECRET_KEY = 'sk_test_51I1fcFLxHi43cm8RfFKIo5hsqMyCYpf2IKPAxn9StfrDXRbxgamc05qwm0xFRbusuEqhpRS8IXXKjWvNG2RMCKwg002oU9b62P'
+
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -134,6 +138,10 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 
 STATIC_URL = '/static/'
+STATICFILES_DIRS = [
+    BASE_DIR / "static",
+]
+
 MEDIA_URL = '/assets/'
 MEDIA_ROOT = BASE_DIR / 'assets'
 

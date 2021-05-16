@@ -68,3 +68,27 @@ class Panier(models.Model):
 
     def subTotal(self):
         return self.quantity * self.produit.prix
+
+
+class Paiement(models.Model):
+    stripe_charge_id = models.CharField(max_length=50)
+    client = models.ForeignKey(
+        Client, on_delete=models.SET_NULL, blank=True, null=True)
+    montant = models.FloatField()
+    date = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.client.fullname
+
+
+class Commande(models.Model):
+    client = models.ForeignKey(
+        Client, on_delete=models.CASCADE)
+    date_commande = models.DateTimeField(auto_now_add=True)
+    produits = models.CharField(max_length=200, default='PRODUIT')
+    methode_paiment = models.CharField(max_length=20, blank=True, null=True)
+    paiement = models.ForeignKey(
+        Paiement, on_delete=models.SET_NULL, blank=True, null=True)
+
+    def __str__(self):
+        return self.client.fullname

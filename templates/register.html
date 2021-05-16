@@ -8,7 +8,8 @@
         <div class="col-lg-6 col-md-8 mx-auto">
             <div class="card rounded shadow shadow-sm">
                 <div class="card-header text-center">
-                    <h3 class="mb-0">Register</h3>
+                    <h3 class="mb-2">Register</h3>
+                    <div id="errorMsg" class="alert alert-danger" style="display:none;"></div>
                 </div>
                 {% comment %} DISPLAY SUCCESS MESSAGE {% endcomment %}
                     {% if messages %}
@@ -32,11 +33,57 @@
                             {% endif %}
                         
                         {% endfor %}
-                        <input type="submit" class="btn btn-dark btn-block" value="Register" name="register">
+                        <input type="submit" id="btnSubmit" class="btn btn-dark btn-block" value="Register" name="register">
                     </form>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+{% comment %} <script type="text/javascript">
+    
+    let btnSubmit =  document.getElementById('btnSubmit');
+    let errorMsg = document.getElementById('errorMsg')
+    let username = document.getElementById('id_username')
+    let pwd = document.getElementById('id_password')
+    let email = document.getElementById('id_email')
+    let fullname = document.getElementById('id_fullname')
+    let phone = document.getElementById('id_phone')
+    let address = document.getElementById('id_adress')
+    let city = document.getElementById('id_city')
+
+    //regular expression of a valid email
+    function validateEmail(email) {
+        const re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+        return re.test(email);
+    }
+
+    //message d'erreur
+    function displayErrorMsg(msg,e){
+        e.preventDefault();
+        errorMsg.style.display = 'block';
+        errorMsg.style.transition = '0.4s';
+        errorMsg.textContent = msg;
+
+    }
+
+    btnSubmit.addEventListener('click',function(event){
+        document.documentElement.scrollTop = 0;
+
+        if( username.value === "" ||
+            fullname.value === "" ||
+            email.value === "" ||
+            pwd.value === "" ||
+            phone.value === "" ||
+            city.value === "") {
+            displayErrorMsg("Fill in all the fields",event);
+        }
+        else if(validateEmail(email.value) === false){
+            displayErrorMsg("Enter a valid Email",event);
+        }else if(pwd.value.length < 8){
+            displayErrorMsg("Password must be more than 8 characters",event);
+        }
+    });
+</script> {% endcomment %}
 {% endblock content %}

@@ -3,9 +3,9 @@ from django.urls import path
 from django.conf.urls.static import static
 from django.conf import settings
 from . import views
+
 urlpatterns = [
     path('', views.ProductsView.as_view(), name="products"),
-    path('about/', views.AboutView.as_view(), name="about"),
     path('cart/', views.CartView.as_view(), name="cart"),
     path('product/<int:id>', views.ProductView.as_view(), name="product"),
     path('register/', views.RegisterView.as_view(), name="register"),

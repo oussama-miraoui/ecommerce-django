@@ -4,4 +4,4 @@ from .models import *
 # Register your models here.
 
 admin.site.register([Produit, Categorie, Client,
-                     Couleur, Taille, Detail_Produit, Panier, ])
+                     Couleur, Taille, Detail_Produit, Panier, Paiement, Commande])
