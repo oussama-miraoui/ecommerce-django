@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 {% block title %} Registration {% endblock title %}
 
+{%load crispy_forms_tags%}
 {% block content %}
 
 <div class="container">
@@ -19,7 +20,8 @@
                     {% endif %}
                 <div class="card-body">
                     <form role="form" class="form-horizontal" method="post">
-                        {% csrf_token %}
+                    {% csrf_token %}
+                        {% comment %} 
                         {% for field in form %}
                         <label for={{field.id_for_label}}>{{field.html_name|capfirst}}: </label>
                             {% if field.widget_type == "textarea" %}
@@ -32,7 +34,8 @@
                             id="{{ field.id_for_label  }}" name="{{ field.html_name }}" placeholder="{{field.html_name|capfirst}}" />
                             {% endif %}
                         
-                        {% endfor %}
+                        {% endfor %} {% endcomment %}
+                        {{form|crispy}}
                         <input type="submit" id="btnSubmit" class="btn btn-dark btn-block" value="Register" name="register">
                     </form>
                 </div>
@@ -41,7 +44,7 @@
     </div>
 </div>
 
-{% comment %} <script type="text/javascript">
+<script type="text/javascript">
     
     let btnSubmit =  document.getElementById('btnSubmit');
     let errorMsg = document.getElementById('errorMsg')
@@ -85,5 +88,5 @@
             displayErrorMsg("Password must be more than 8 characters",event);
         }
     });
-</script> {% endcomment %}
+</script> 
 {% endblock content %}

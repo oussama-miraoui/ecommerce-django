@@ -89,6 +89,7 @@ class Commande(models.Model):
     methode_paiment = models.CharField(max_length=20, blank=True, null=True)
     paiement = models.ForeignKey(
         Paiement, on_delete=models.SET_NULL, blank=True, null=True)
+    etat = models.CharField(max_length=50, default="Pending")
 
     def __str__(self):
         return self.client.fullname

@@ -67,11 +67,16 @@
             {% for detail in details %}
                 {% if detail.couleur %}
             <label><strong>Color: </strong></label>
-              <div class="form-check-inline">
+              {% comment %} <div class="form-check-inline">
                 <label class="form-check-label">
                   <input type="radio" class="form-check-input" id="color" name="color" value="{{detail.couleur}}">{{detail.couleur}}
                 </label>
-              </div>
+              </div> {% endcomment %}
+
+               <label class="custom-control custom-control-inline custom-radio">
+                <input class="custom-control-input" id="color" name="color" type="radio" value="{{detail.couleur}}">
+                <div class="custom-control-label">{{detail.couleur}}</div>
+              </label>
               {% endif %}
             {% endfor %}
             {% endif %}

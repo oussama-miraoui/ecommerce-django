@@ -42,25 +42,15 @@
             <form action="." method="post" id="payment-form">
                 {% csrf_token %}    
                 <div class="row">
-                    <div class="col-md-6 mb-3">
+                    <div class="col-md-12 mb-3">
                         <label for="firstName">Fullname</label>
                         {# <input type="text" class="form-control" id="firstName" placeholder="" value="" required>#}
                         {{ form.fullname }}
                     </div>
-                    <div class="mb-3 col-md-6">
-                        <label for="username">Username</label>
-                        <div class="input-group">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text">@</span>
-                            </div>
-                            {% comment %} <input type="text" class="form-control" id="username" placeholder="Username" required> {% endcomment %}
-                            {{ form.username }}
-                        </div>
-                    </div>
                 </div>
                 <div class="row">
                     <div class="col-md-6 mb-3">
-                        <label for="email">Email <span class="text-muted">(Optional)</span></label>
+                        <label for="email">Email</label>
                         {% comment %} <input type="email" class="form-control" id="email" placeholder="you@example.com"> {% endcomment %}
                         {{form.email}}
                     </div>
@@ -74,7 +64,7 @@
                 <div class="mb-3">
                     <label for="address">Address</label>
                     {% comment %} <input type="text" class="form-control" id="address" placeholder="1234 Main St" required> {% endcomment %}
-                    {{form.address}}
+                    {{form.adress}}
                 </div>
 
                 <div class="row">

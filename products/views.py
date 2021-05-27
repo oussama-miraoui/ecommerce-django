@@ -8,7 +8,6 @@ from django.contrib.auth.models import User
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
-from stripe.api_resources.order import Order
 from .forms import ClientRegistrationForm, ClientLoginForm, CheckoutForm
 from django.contrib.auth.mixins import LoginRequiredMixin
 from .models import Produit, Categorie, Detail_Produit, Panier, Paiement, Commande
@@ -48,7 +47,7 @@ class ProductsView(View):
             # _contains est comme 'like' dans sql
             products = Produit.objects.filter(nom__icontains=searchValue)
         else:
-            products = Produit.objects.all()
+            products = Produit.objects.all().order_by('nom')
 
         context = {"products": products,
                    "categories": categories,
@@ -59,8 +58,6 @@ class ProductsView(View):
             "products/products.html",
             context
         )
-
-# LoginRequiredMixin => l'user n'accède pas a la page sauf qu'il est authentifié
 
 
 class ProductView(View):
@@ -73,21 +70,24 @@ class ProductView(View):
 
         return render(request, "products/product.html", {"product": product, "details": details})
 
+# LoginRequiredMixin => l'user n'accède pas a la page sauf qu'il est authentifié
+
 
 class CartView(LoginRequiredMixin, View):
     login_url = "/login/"
     redirect_field_name = "redirect_to"
 
     def get(self, request):
-        paniers = Panier.objects.all()
         # get all from panier where client_id = Client.id
-        client_panier = paniers.filter(client_id=request.session['user_id'])
-        return render(request, "cart/cart.html", {"paniers": client_panier})
+        client_panier = Panier.objects.filter(
+            client_id=request.session['user_id'])
+        request.session['count_panier'] = client_panier.count()
+        return render(request, "cart/cart.html", {"paniers": client_panier, "count": request})
 
 
 class OrdersView(View):
     def get(self, request):
-        orders = Commande.objects.all()
+        orders = Commande.objects.all().order_by('-date_commande')
         # get all from panier where client_id = Client.id
         client_order = orders.filter(client_id=request.session['user_id'])
         return render(request, "orders.html", {"orders": client_order})
@@ -105,23 +105,24 @@ class CheckoutView(LoginRequiredMixin, View):
             'email': request.user.email,
             'phone': request.user.client.phone,
             'email': request.user.email,
+            'adress': request.user.client.adress,
             'city': request.user.client.city
         })
 
         paniers = Panier.objects.filter(client_id=request.session['user_id'])
+
         return render(request, "checkout.html", {'form': form, "paniers": paniers})
 
     def post(self, *args, **kwargs):
         paniers = Panier.objects.filter(
             client_id=self.request.session['user_id'])
         total = 0
-        listProduits = []
-        produits = ""
+        listProduits = ""
+
         for panier in paniers:
             total += panier.subTotal()
-            listProduits.append(panier.produit.nom)
-
-        produits = ", ".join(listProduits)
+            # les produits commandés par le client et ses quantités
+            listProduits += f" {panier.produit.nom} x{panier.quantity}."
 
         token = self.request.POST.get('stripeToken')
         # print(token)
@@ -132,22 +133,22 @@ class CheckoutView(LoginRequiredMixin, View):
             source=token
         )
 
-        # create payment
+        # creer le paiement
         paiement = Paiement()
         paiement.stripe_charge_id = charge['id']
         paiement.client = self.request.user.client
         paiement.montant = total
         paiement.save()
 
-        # create order
+        # creer la commande
         commande = Commande()
         commande.client = self.request.user.client
         commande.methode_paiment = "Stripe"
         commande.paiement = paiement
-        commande.produits = produits
+        commande.produits = listProduits
         commande.save()
 
-        # empty the cart
+        # vider le panier
         paniers.delete()
 
         messages.success(
@@ -178,7 +179,7 @@ class LoginView(FormView):
     # import the form from forms.py
     form_class = ClientLoginForm
     # redirect
-    success_url = reverse_lazy("login")
+    # success_url = reverse_lazy("login")
 
     def form_valid(self, form):
         uname = form.cleaned_data['username']
@@ -209,7 +210,7 @@ class LogoutView(View):
 
 # CART operations
 
-@login_required(login_url='/login/')
+@ login_required(login_url='/login/')
 def addToCart(request):
     if request.method == 'POST':
         # get the query string from url parameter

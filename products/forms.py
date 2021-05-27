@@ -14,12 +14,11 @@ class ClientRegistrationForm(forms.ModelForm):
                   "fullname", "phone", "adress", "city"]
 
     # verifier si username entré par l'user deja existe
-    # ça marche pas!
     def clean_username(self):
         username = self.cleaned_data['username']
-        if User.objects.exclude(pk=self.instance.pk).filter(username=username).exists():
+        if User.objects.filter(username=username).exists():
             raise forms.ValidationError(
-                f'Username {username} is already in use.')
+                "Sorry, that username's taken. Try another?")
         return username
 
 
@@ -37,8 +36,6 @@ PAYMENT_CHOICES = (
 class CheckoutForm(forms.Form):
     fullname = forms.CharField(
         widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': "Fullname"}), required=True)
-    username = forms.CharField(widget=forms.TextInput(
-        attrs={'class': 'form-control', 'placeholder': "Username"}))
     email = forms.CharField(widget=forms.EmailInput(
         attrs={'class': 'form-control', 'placeholder': "xxx@xxx.xxx"}))
     adress = forms.CharField(widget=forms.TextInput(
