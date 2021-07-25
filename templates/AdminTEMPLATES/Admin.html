@@ -1,0 +1,87 @@
+
+{# Extendes Menu #}
+<style>
+.fa {
+  color: #333;
+}
+.fa:hover {
+  color: #04AA6D;
+}
+.fas {
+  color: #333;
+}
+.fas:hover {
+  color: #04AA6D;
+}
+</style>
+{% extends 'AdminTEMPLATES/ABase.html' %}
+{# Extended Title #}
+{% load static %}
+{% block title %}List{% endblock title %}
+
+
+
+{# Extended Content #}
+{% block stylesheet %}
+
+{% endblock stylesheet %}
+{% block content %}
+
+
+<div class="container mt-5">
+<div class="row">
+<div class="col-12">
+<table class="table table-hover">
+<thead >
+<tr>
+<td>ID</td>
+<td>nom</td>
+<td>Discription</td>
+<td>Options</td>
+</tr>
+</thead>
+<tbody>
+
+{% for Admin in Admins %}
+<tr>
+
+<td>{{Admin.id}}</td>
+<td>{{Admin.fullname}}</td>
+<td>{{Admin.date}}</td>
+<td >
+
+<a href="{% url 'AdminDel' Admin_id=Admin.id %}" class="fa fa-trash ml-3"></a></td>
+
+</tr>
+
+{% endfor %}
+<tr>
+<td></td>
+<td></td>
+<td></td>
+<td><a href="{% url 'Aregister'%}" ><button id="Add" class="btn btn-dark" onclick="Toggle()">Ajouter Admin</button></a></td>
+
+</tr>
+</tbody>
+
+
+</table>
+
+
+
+
+
+
+
+
+</div>
+
+</div>
+
+</div>
+<h2 id="demo"></h2>
+
+
+
+
+{% endblock content %}

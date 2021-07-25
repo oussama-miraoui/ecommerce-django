@@ -1,10 +1,15 @@
 from django.db import models
-from django.contrib.auth.models import User
+from django.contrib.auth.models import AbstractUser
 # Create your models here.
 
 
+class user(AbstractUser):
+    is_client = models.BooleanField(default=False)
+    is_admin = models.BooleanField(default=False)
+
+
 class Client(models.Model):
-    user = models.OneToOneField(User(), on_delete=models.CASCADE)
+    user = models.OneToOneField(user, on_delete=models.CASCADE)
     fullname = models.CharField(max_length=100, blank=True)
     phone = models.CharField(max_length=50, blank=True)
     adress = models.TextField(blank=True)
@@ -56,6 +61,9 @@ class Detail_Produit(models.Model):
     taille = models.ForeignKey(
         Taille, on_delete=models.CASCADE, blank=True, null=True)
 
+    def __str__(self):
+        return self.produit.nom
+
 
 class Panier(models.Model):
     client = models.ForeignKey(Client, on_delete=models.CASCADE)
@@ -82,14 +90,23 @@ class Paiement(models.Model):
 
 
 class Commande(models.Model):
+    STATUS = (('Traitée', 'traitée'), ('Non traitée', 'Non traitée'))
     client = models.ForeignKey(
         Client, on_delete=models.CASCADE)
     date_commande = models.DateTimeField(auto_now_add=True)
-    produits = models.CharField(max_length=200, default='PRODUIT')
+    #produits = models.CharField(max_length=200, default='PRODUIT')
     methode_paiment = models.CharField(max_length=20, blank=True, null=True)
     paiement = models.ForeignKey(
         Paiement, on_delete=models.SET_NULL, blank=True, null=True)
-    etat = models.CharField(max_length=50, default="Pending")
+    etat = models.CharField(
+        max_length=50, choices=STATUS, default="Non traitée")
+    Total = models.FloatField(null=True)
 
     def __str__(self):
-        return self.client.fullname
+        return str(self.id)
+
+
+class LigneCommande(models.Model):
+    Commande = models.ForeignKey(Commande, on_delete=models.CASCADE)
+    Produit = models.ForeignKey(Produit, on_delete=models.CASCADE)
+    Qte = models.PositiveBigIntegerField()

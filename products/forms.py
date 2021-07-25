@@ -1,6 +1,6 @@
 from django import forms
 from .models import Client
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 
 
 class ClientRegistrationForm(forms.ModelForm):
@@ -15,6 +15,7 @@ class ClientRegistrationForm(forms.ModelForm):
 
     # verifier si username entré par l'user deja existe
     def clean_username(self):
+        User = get_user_model()
         username = self.cleaned_data['username']
         if User.objects.filter(username=username).exists():
             raise forms.ValidationError(
@@ -25,12 +26,6 @@ class ClientRegistrationForm(forms.ModelForm):
 class ClientLoginForm(forms.Form):
     username = forms.CharField(widget=forms.TextInput())
     password = forms.CharField(widget=forms.PasswordInput())
-
-
-PAYMENT_CHOICES = (
-    ('S', 'Stripe'),
-    ('P', 'Paypal')
-)
 
 
 class CheckoutForm(forms.Form):
@@ -46,5 +41,3 @@ class CheckoutForm(forms.Form):
         widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': "City"}))
     zipcode = forms.CharField(
         widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': "Ex: 20100"}))
-    payment_options = forms.ChoiceField(
-        widget=forms.RadioSelect, choices=PAYMENT_CHOICES)

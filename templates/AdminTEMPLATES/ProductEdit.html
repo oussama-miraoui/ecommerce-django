@@ -1,0 +1,46 @@
+{# Extendes Menu #}
+
+{% extends 'AdminTEMPLATES/ABase.html' %}
+{# Extended Title #}
+{% load static %}
+{% block title %}List{% endblock title %}
+
+{% load crispy_forms_tags %}
+
+{# Extended Content #}
+{% block stylesheet %}
+<link rel="stylesheet" href="{% static 'css/Style.css' %}">
+{% endblock stylesheet %}
+{% block content %}
+
+<div class="container align-items-center mt-5">
+    <div class="row justify-content-center " style="height:50vh">
+        <div class="col-8">
+            <div class="card">
+                <div class="card-body">
+                    <h3>Modifier produit:</h3>
+
+                    <form method="POST" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <div class="form-group">
+
+                            {{form|crispy}}
+
+                            <input type="submit" class="btn btn-block btn-log " value="Send">
+                        </div>
+                    </form>
+
+                    {% for messages in messages %}
+
+                    <div class="alert alert-primary my-3" role="alert">
+                        {{messages}}
+                    </div>
+                    {% endfor %}
+
+
+
+
+
+
+
+                    {% endblock content %}

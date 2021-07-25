@@ -1,0 +1,61 @@
+
+
+
+
+{% extends 'AdminTEMPLATES/ABase.html' %}
+{# Extended Title #}
+{% load static %}
+{% block title %}Login{% endblock title %}
+
+
+{% load crispy_forms_tags %}
+{# Extended Content #}
+{% block stylesheet %}
+<link rel="stylesheet" href="{% static 'css/Style.css' %}">
+{% endblock stylesheet %}
+{% block content %}
+<div class="container">
+<div class="parent-div">
+<div class="div-child">
+
+
+
+
+
+
+<div class="container">
+        <div class="row justify-content-center align-items-center" style="height:50vh">
+            <div class="col-4">
+                <div class="card">
+                    <div class="card-body">
+                    <h3>Login</h3>
+                    {% for messages in messages %}
+                        <div class="alert alert-danger text-center my-3" role="alert">
+                            {{messages}}
+                        </div>
+                    {% endfor %}
+                        <form method="post" action={% url 'adminLogin' %}>
+                        {% csrf_token %}
+                            {{form|crispy}}
+                            <button type="submit" id="sendlogin" class=" btn-log btn btn-block">login</button>
+                        </form>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+
+
+</div>
+</div></div>
+
+
+
+
+
+{% endblock content %}
+<h1></h1>

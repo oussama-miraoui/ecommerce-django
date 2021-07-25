@@ -1,0 +1,106 @@
+{# Extendes Menu #}
+
+{% extends 'AdminTEMPLATES/ABase.html' %}
+{% block title %} Products {% endblock title %}
+
+{% block content %}
+<main style="height:80vh" class="container">
+  <!--Navbar-->
+  
+
+  <div class="topnav my-2">
+  <a class="active" href="{% url 'productList' %}">Tout</a>
+  
+  <div class="topnav ">
+  
+   {% for categorie in categories %}
+        <li class="topnav-right">
+          <a class="" href="{% url 'productList' %}?categorie={{categorie.nom}}">{{ categorie.nom }}</a>
+        </li>
+        {% endfor %}
+
+
+
+    </div>
+  </div>
+</div>
+  <!--/.Navbar-->
+
+  {% comment %} DISPAY MESSAGE FOR RESULTS {% endcomment %}
+
+
+
+
+    <div class="row fadeIn ">
+
+
+            <div class="col-md-3 col-sm-6 mt-2">
+            <div class="product-grid">
+                <div class="product-image">
+                    <a href="#">
+                        <img class="pic-1" src="../assets/images/cut.jpg">
+                        
+                    </a> 
+                     <ul class="social">
+                        <li><a href="{% url 'createProduct' %}" data-tip="Nouveau produit"><i class="fa fa-plus"></i></a></li>
+
+                       
+                    </ul>
+                </div>   
+            </div>
+            </div>
+
+
+
+    {% for product in products %}
+        <div class="col-md-3 col-sm-6 mt-2">
+            <div class="product-grid">
+                <div class="product-image">
+                    <a href="#">
+                        <img class="pic-1" src="{{ product.image.url }}">
+                        
+                    </a>
+                    <ul class="social">
+                        
+                        <li><a href="{% url 'editProduct' product.id %}" data-tip="Modifier Produit"><i class="fas fa-edit"></i></a></li>
+                        <li><a href="{% url 'deleteProduct' product.id %}" data-tip="Supprimmer Produit"><i class="fa fa-trash"></i></a></li>
+                       
+                    </ul>
+                    <span class="product-new-label">Sale</span>
+                    <span class="product-new-label">{{ product.stock }} Restant</span>
+                </div>
+
+                <div class="product-content">
+                    <h3 class="title"><a href="#">{{ product.nom }}</a></h3>
+                    <div class="price">{{ product.prix }} MAD
+                        {% if product.ancienPrix %}
+                        <span>{{ product.ancienPrix }} MAD</span>
+                        {% endif %}
+                    </div>
+                    <div style="padding:10px"></div>
+                </div>
+            </div>
+        </div>{% endfor %}
+
+
+  <section class="text-center mb-4">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script>
+
+</script>
+{% endblock content %}

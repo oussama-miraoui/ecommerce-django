@@ -6,6 +6,7 @@ from django.conf.urls.static import static
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('products.urls')),
+    path('', include('AdminPanel.urls')),
 ]
 # BA9I MAFHEMTSH HAD LCODE !!!!!!!!!!!!!!!
 # KI AFFICHER LINA TSSAWER DIAL LES PRODUITS

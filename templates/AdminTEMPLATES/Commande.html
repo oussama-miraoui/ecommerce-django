@@ -1,0 +1,114 @@
+{% extends 'AdminTEMPLATES/ABase.html' %}
+{# Extended Title #}
+{% load static %}
+{% block title %}List{% endblock title %}
+
+<style>
+  .fa {
+    color: #333;
+  }
+
+  .fa:hover {
+    color: #04AA6D;
+  }
+
+  .fas {
+    color: #333;
+  }
+
+  .fas:hover {
+    color: #04AA6D;
+  }
+</style>
+<html lang="en">
+
+<head>
+  {% block stylesheet %}
+
+  {% endblock stylesheet %}
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Commande</title>
+</head>
+
+<body>
+  {% block content %}
+
+
+  <div class="container mt-5">
+    <div class="row">
+      <div class="col-12">
+        <table style="{text:black;}" class="table table-hover" id="table">
+          <thead>
+            <tr>
+              <td>ID</td>
+              <td>Client</td>
+              <td>Date de commande</td>
+              <td>Methode de paiment</td>
+
+              <td>Etat</td>
+              <td>Liste des produits</td>
+
+              <td>Total</td>
+
+              <td>Options</td>
+            </tr>
+          </thead>
+          <tbody>
+
+            {% for Commande in Commandes %}
+            <tr>
+
+              <td>{{Commande.id}}</td>
+              <td>{{Commande.client}}</td>
+              <td>{{Commande.date_commande}}</td>
+              <td>{{Commande.methode_paiment}}</td>
+
+              <td>{{Commande.etat}}</td>
+              <td>
+                {% for Ligne in LigneCommande %}
+
+                {% if Ligne.Commande.id == Commande.id %}
+
+                {{ Ligne.Produit.nom }}
+                x{{ Ligne.Qte }}
+                <br>
+
+                {% endif %}
+                {% endfor %}
+
+              </td>
+              <td>{{Commande.Total}}</td>
+
+              <td>
+                <a href="{% url 'CommandeEtat' Commande_id=Commande.id %}" class="fa fa-check "></a>
+                <a href="{% url 'deleteCommande' Commande_id=Commande.id %}" class="fa fa-trash ml-3"></a>
+              </td>
+
+
+            </tr>
+
+
+
+            {% endfor %}
+
+          </tbody>
+
+
+        </table>
+
+      </div>
+    </div>
+  </div>
+
+  {% endblock content %}
+</body>
+
+</html>
+
+<script>
+  var x = document.getElementById("Table");
+  x.style.display = "none";
+
+</script>

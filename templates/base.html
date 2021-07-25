@@ -43,13 +43,11 @@
           <a class="nav-link" href="{% url 'orders' %}">My orders</a>
         </li>
         {% endif %}
-          <li class="nav-item">
-          <a class="nav-link" href="">About</a>
-        </li>
+         
       </ul>
 
       <div class=" my-2 my-lg-0">
-
+        <a href="{% url 'adminLogin' %}">Admin Panel</a>
         <a href="{% url 'cart' %}" style="text-decoration: none;" class="text-dark mx-2">
           Cart <i class="fa fa-shopping-cart" style="font-size: 15px"></i>
           <span class="badge badge-danger p-1"

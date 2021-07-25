@@ -1,17 +1,19 @@
+from typing import Tuple
 from django.shortcuts import render, redirect
 from django.conf import settings
 from django.http import HttpResponse, HttpResponseRedirect
-from django.views.generic import View, TemplateView, CreateView, FormView
+from django.views.generic import View, CreateView, FormView
 from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
-from .forms import ClientRegistrationForm, ClientLoginForm, CheckoutForm
+from products.forms import ClientRegistrationForm, ClientLoginForm, CheckoutForm
 from django.contrib.auth.mixins import LoginRequiredMixin
-from .models import Produit, Categorie, Detail_Produit, Panier, Paiement, Commande
+from products.models import LigneCommande, Produit, Categorie, Detail_Produit, Panier, Paiement, Commande
 import stripe
+from django.db.models import F
 
 # Set your secret key. Remember to switch to your live secret key in production.
 # See your keys here: https://dashboard.stripe.com/apikeys
@@ -90,6 +92,10 @@ class OrdersView(View):
         orders = Commande.objects.all().order_by('-date_commande')
         # get all from panier where client_id = Client.id
         client_order = orders.filter(client_id=request.session['user_id'])
+
+        # commandes = Commande.objects.all()
+        # lignes = LigneCommande.objects.all()
+
         return render(request, "orders.html", {"orders": client_order})
 
 
@@ -121,8 +127,10 @@ class CheckoutView(LoginRequiredMixin, View):
 
         for panier in paniers:
             total += panier.subTotal()
+            Produit.objects.filter(id=panier.produit.id).update(
+                stock=F('stock') - panier.quantity)
             # les produits commandés par le client et ses quantités
-            listProduits += f" {panier.produit.nom} x{panier.quantity}."
+            #listProduits += f" {panier.produit.nom} x{panier.quantity}."
 
         token = self.request.POST.get('stripeToken')
         # print(token)
@@ -145,9 +153,15 @@ class CheckoutView(LoginRequiredMixin, View):
         commande.client = self.request.user.client
         commande.methode_paiment = "Stripe"
         commande.paiement = paiement
-        commande.produits = listProduits
+        commande.Total = total
         commande.save()
 
+        for panier in paniers:
+            Ligne_Com = LigneCommande()
+            Ligne_Com.Commande = commande
+            Ligne_Com.Produit = panier.produit
+            Ligne_Com.Qte = panier.quantity
+            Ligne_Com.save()
         # vider le panier
         paniers.delete()
 
@@ -165,9 +179,14 @@ class RegisterView(CreateView):
         username = form.cleaned_data["username"]
         email = form.cleaned_data["email"]
         password = form.cleaned_data["password"]
+        User = get_user_model()
 
         user = User.objects.create_user(username, email, password)
+        # Setting user as a client
+        User.objects.filter(pk=user.pk).update(is_client=True)
+
         form.instance.user = user
+
         # afficher un message de success si le client est inscrit.
         messages.info(self.request, "You've registered, go to ")
 
@@ -210,7 +229,7 @@ class LogoutView(View):
 
 # CART operations
 
-@ login_required(login_url='/login/')
+@login_required(login_url='/login/')
 def addToCart(request):
     if request.method == 'POST':
         # get the query string from url parameter
