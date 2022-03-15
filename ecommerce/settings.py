@@ -153,3 +153,5 @@ MEDIA_ROOT = BASE_DIR / 'assets'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = 'products.user'
+
+# ALLOWED_HOSTS = ['5331-105-68-216-79.ngrok.io']
